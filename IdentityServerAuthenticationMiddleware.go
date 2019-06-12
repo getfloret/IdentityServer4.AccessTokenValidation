@@ -16,7 +16,6 @@ const(
 	JWTScheme = "JWT"
 	IntrospectionScheme = "Reference"
 )
-var KeyLoader oidc.KeyLoader
 
 
 
@@ -41,5 +40,5 @@ func setupHandler(){
 	if(err != nil){
 		log.Panic("Configuration Authority is not valid")
 	}
-	KeyLoader = oidc.NewCachingOpenIDProviderLoader(oidc_discoverydoc_url)
+	oidc.DefaultKeyLoader = oidc.NewCachingOpenIDProviderLoader(oidc_discoverydoc_url)
 }

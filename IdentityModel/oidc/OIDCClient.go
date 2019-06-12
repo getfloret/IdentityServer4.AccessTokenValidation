@@ -1,4 +1,4 @@
-package hc
+package oidc
 
 import (
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
@@ -46,7 +46,7 @@ func NewHTTPClient(timeout time.Duration, tlsTimeout time.Duration) *http.Client
 // Get is a wrapper around Default.Get.
 //
 // A User-Agent header is set for every request from the UserAgent variable in the same package
-func Get(url string) (*http.Response, error) {
+func GetDiscoveryDocument(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err

@@ -8,7 +8,6 @@ import (
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/jwk"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/infrastructure"
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/infrastructure/breaker"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/infrastructure/caching"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	log "github.com/sirupsen/logrus"
@@ -24,6 +23,7 @@ import (
 type cachingOpenIDProviderLoader struct {
 	url      string
 	keyCache *caching.Cache
+	oidcConf *IdentityModel.OpenIdConnectConfiguration
 }
 
 var (
@@ -62,6 +62,10 @@ func (kl *cachingOpenIDProviderLoader) Keys() map[string]interface{} {
 	return kl.keyCache.Snapshot()
 }
 
+func (kl *cachingOpenIDProviderLoader) OIDCConf() *IdentityModel.OpenIdConnectConfiguration {
+	return kl.oidcConf
+}
+
 // Example: https://www.googleapis.com/oauth2/v3/certs
 func (kl *cachingOpenIDProviderLoader) refreshKeys() {
 	log.Println("Refreshing keys..")
@@ -72,9 +76,9 @@ func (kl *cachingOpenIDProviderLoader) refreshKeys() {
 		log.Printf("Failed to get configuration from %q. %s\n", kl.url, err)
 		return
 	}
-
+	kl.oidcConf = c
 	log.Println("Configuration loaded successfully, loading JWKS..")
-	resp, err := breaker.Get("loadKeys", c.JwksUri)
+	resp, err := Get("loadKeys", c.JwksUri)
 	if err != nil {
 		log.Println("Failed to get JWKS from ", c.JwksUri)
 		return
@@ -131,7 +135,7 @@ func (kl *cachingOpenIDProviderLoader) refreshKeys() {
 
 // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse
 func (kl *cachingOpenIDProviderLoader) loadConfiguration() (*IdentityModel.OpenIdConnectConfiguration, error) {
-	resp, err := breaker.Get("loadConfiguration", kl.url)
+	resp, err := Get("loadConfiguration", kl.url)
 	if err != nil {
 		return nil, err
 	}

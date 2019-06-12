@@ -189,6 +189,8 @@ type OpenIdConnectConfiguration struct {
 
 	/// Gets the collection of 'userinfo_signing_alg_values_supported'
 	UserInfoEndpointSigningAlgValuesSupported []string `json:"userinfo_signing_alg_values_supported,omitempty"`
+
+	IntrospectionEndpoint string `json:"introspection_endpoint,omitempty"`
 }
 
 ///// <summary>

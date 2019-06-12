@@ -1,6 +1,7 @@
 package IdentityServer4_AccessTokenValidation
 
 import (
+	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/oidc"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ func HandleAuthenticate() gin.HandlerFunc {
 				log.Trace("Token is a JWT and is supported.")
 				c.Set(EffectiveSchemeKey,JWTScheme)
 				//todo
-				errParse:= ParseJWT(token,KeyLoader)
+				errParse:= ParseJWT(token,oidc.DefaultKeyLoader)
 				if(errParse == nil){
 					c.Next()
 				} else {
