@@ -13,6 +13,8 @@ import (
 
 //https://github.com/IdentityModel/IdentityModel/blob/master/src/Client/IntrospectionClient.cs
 
+ROLE https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection/blob/master/src/OAuth2IntrospectionHandler.cs
+
 var (
 	// Default global instance of a custom http.Client using the defaults from the options package
 	IntrospectionClient = DefaultIntrospectionHTTPClient()
@@ -45,7 +47,7 @@ type TokenIntrospectionRequest struct {
 	TokenTypeHint string //token_type_hint
 }
 
-func Post(url string, data TokenIntrospectionRequest, contentType string) (content string) {
+func Post(url string, data *TokenIntrospectionRequest) (content string) {
 	bodyData := "token="+data.Token
 	if(data.TokenTypeHint!=""){
 		bodyData+="&token_type_hint="+data.TokenTypeHint

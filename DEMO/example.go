@@ -1,7 +1,7 @@
 package main
 
 import (
-	AccessTokenValidation "github.com/getfloret/IdentityServer4.AccessTokenValidation"
+	IS4 "github.com/getfloret/IdentityServer4.AccessTokenValidation"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	"github.com/gin-gonic/gin"
 	"time"
@@ -9,9 +9,9 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.Use(AccessTokenValidation.IdentityServerAuthentication(func(options *options.IdentityServerAuthenticationOptions)(){
+	r.Use(IS4.IdentityServerAuthentication(func(options *options.IdentityServerAuthenticationOptions)(){
 		options.Authority = "https://u.highyouth.com"
-		options.DiscoveryDocumentRefreshInterval = 30 * time.Second
+		options.DiscoveryDocumentRefreshInterval = 24 * time.Hour
 	}))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{

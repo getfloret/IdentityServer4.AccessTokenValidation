@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+//todo
+//JwtProcessors:                     make(map[string]processor.JwtProcessor),
+
 type IdentityServerAuthenticationOptions struct {
 	// Base-address of the token issuer
 	Authority string
