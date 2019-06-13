@@ -5,8 +5,9 @@ import (
 	"time"
 )
 
-//todo
-//JwtProcessors:                     make(map[string]processor.JwtProcessor),
+type TokenClaimsProcessor interface {
+	Process(claims map[string]string) (map[string]string, error)
+}
 
 type IdentityServerAuthenticationOptions struct {
 	// Base-address of the token issuer
@@ -35,6 +36,8 @@ type IdentityServerAuthenticationOptions struct {
 	/* Enable if this API is being secured by IdentityServer3, and if you need to support both JWTs and reference tokens.
 	If you enable this, you should add scope validation for incoming JWTs.*/
 	LegacyAudienceValidation bool
+
+	ClaimsProcessor TokenClaimsProcessor
 
 	// Claim type for name
 	NameClaimType string

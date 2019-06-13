@@ -17,7 +17,8 @@ var (
 
 func ParseJWT(tokenStr string, kl oidc.KeyLoader)(err error){
 	token, err := jwt.Parse(tokenStr, getSignKey(kl))
-
+todo
+	//type MapClaims map[string]interface{}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		fmt.Println(claims["foo"], claims["nbf"])
 		return nil

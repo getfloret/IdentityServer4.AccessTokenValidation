@@ -1,6 +1,7 @@
 package IdentityServer4_AccessTokenValidation
 
 import (
+	"errors"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/oidc"
 	"github.com/karlseguin/ccache"
 	"time"
@@ -11,21 +12,32 @@ type referenceHandler struct {
 	cacheTTL time.Duration
 }
 
+var Err_TokenNotActive = errors.New("Token is not Active")
+
 func New(cacheMaxSize int64,cacheTTL time.Duration) *referenceHandler{
 	cache:= ccache.New(ccache.Configure().MaxSize(cacheMaxSize))
 	return &referenceHandler{cache:cache,cacheTTL:cacheTTL}
 }
 
-func (h *referenceHandler) ParseReference(token string) map[string]string{
+func (h *referenceHandler) ParseReference(token string) (map[string]interface{}, error){
 	item := h.cache.Get(token)//todo user hash
 	if item != nil {
 		if !item.Expired() {
-			return
+			return item.Value().(map[string]interface{}), nil
 		}
 	}
 
-	oidc.Post(oidc.DefaultKeyLoader.OIDCConf().IntrospectionEndpoint,&oidc.TokenIntrospectionRequest{token})
-	if !err && h.cacheTTL>0{
-		h.cache.Set(token, ,h.cacheTTL)
+	tokenResult, err := oidc.Post(oidc.DefaultKeyLoader.OIDCConf().IntrospectionEndpoint,&oidc.TokenIntrospectionRequest{Token:token})
+	if err==nil {
+		if tokenResult.Active {
+			if(h.cacheTTL>0){
+				h.cache.Set(token, tokenResult.Claims ,h.cacheTTL)
+			}
+			return tokenResult.Claims, nil
+		} else {
+			return nil,Err_TokenNotActive
+		}
+	 } else {
+	 	return nil, err
 	}
 }

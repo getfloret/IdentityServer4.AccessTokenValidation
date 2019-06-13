@@ -2,6 +2,7 @@ package oidc
 
 import (
 	"encoding/json"
+	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	"io"
 	"io/ioutil"
@@ -11,9 +12,6 @@ import (
 	"time"
 )
 
-//https://github.com/IdentityModel/IdentityModel/blob/master/src/Client/IntrospectionClient.cs
-
-ROLE https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection/blob/master/src/OAuth2IntrospectionHandler.cs
 
 var (
 	// Default global instance of a custom http.Client using the defaults from the options package
@@ -47,7 +45,7 @@ type TokenIntrospectionRequest struct {
 	TokenTypeHint string //token_type_hint
 }
 
-func Post(url string, data *TokenIntrospectionRequest) (content string) {
+func Post(url string, data *TokenIntrospectionRequest) (tokenResult *IntrospectionResult, err error) {
 	bodyData := "token="+data.Token
 	if(data.TokenTypeHint!=""){
 		bodyData+="&token_type_hint="+data.TokenTypeHint
@@ -67,30 +65,28 @@ func Post(url string, data *TokenIntrospectionRequest) (content string) {
 	}
 	defer resp.Body.Close()
 
-	result, _ := ioutil.ReadAll(resp.Body)
-	content = string(result)
+	tokenResult, _ = extractIntrospectResult(resp.Body)
 	return
 }
 
 
 
 
-
-
+https://github.com/IdentityModel/IdentityModel/blob/d95fd0713b4d2d93ee3a81c78ac970a76421294b/src/Client/Messages/TokenIntrospectionResponse.cs
+https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection/blob/master/src/OAuth2IntrospectionHandler.cs
 func extractIntrospectResult(r io.Reader) (*IntrospectionResult, error) {
 	res := IntrospectionResult{
-		Optionals: make(map[string]json.RawMessage),
+		Claims: make(map[string]interface{}),
 	}
-
-	if err := json.NewDecoder(r).Decode(&res.Optionals); err != nil {
+	if err := json.NewDecoder(r).Decode(&res.Claims); err != nil {
 		return nil, err
 	}
 
-	if val, ok := res.Optionals["active"]; ok {
-		if err := json.Unmarshal(val, &res.Active); err != nil {
+	if val, ok := res.Claims["active"]; ok {
+		if err := json.Unmarshal(val.([]byte), &res.Active); err != nil {
 			return nil, err
 		}
-		delete(res.Optionals, "active")
+		delete(res.Claims, "active")
 	}
 
 	return &res, nil
@@ -100,7 +96,7 @@ func extractIntrospectResult(r io.Reader) (*IntrospectionResult, error) {
 type IntrospectionResult struct {
 	Active bool
 
-	Optionals map[string]json.RawMessage
+	Claims map[string]interface{}
 }
 
 
