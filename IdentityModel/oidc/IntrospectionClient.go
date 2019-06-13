@@ -2,10 +2,8 @@ package oidc
 
 import (
 	"encoding/json"
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
@@ -72,8 +70,6 @@ func Post(url string, data *TokenIntrospectionRequest) (tokenResult *Introspecti
 
 
 
-https://github.com/IdentityModel/IdentityModel/blob/d95fd0713b4d2d93ee3a81c78ac970a76421294b/src/Client/Messages/TokenIntrospectionResponse.cs
-https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection/blob/master/src/OAuth2IntrospectionHandler.cs
 func extractIntrospectResult(r io.Reader) (*IntrospectionResult, error) {
 	res := IntrospectionResult{
 		Claims: make(map[string]interface{}),

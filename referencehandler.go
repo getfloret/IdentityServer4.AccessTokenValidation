@@ -2,6 +2,7 @@ package IdentityServer4_AccessTokenValidation
 
 import (
 	"errors"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/oidc"
 	"github.com/karlseguin/ccache"
 	"time"
@@ -19,11 +20,11 @@ func New(cacheMaxSize int64,cacheTTL time.Duration) *referenceHandler{
 	return &referenceHandler{cache:cache,cacheTTL:cacheTTL}
 }
 
-func (h *referenceHandler) ParseReference(token string) (map[string]interface{}, error){
+func (h *referenceHandler) ParseReference(token string) (jwt.MapClaims, error){
 	item := h.cache.Get(token)//todo user hash
 	if item != nil {
 		if !item.Expired() {
-			return item.Value().(map[string]interface{}), nil
+			return item.Value().(jwt.MapClaims), nil
 		}
 	}
 

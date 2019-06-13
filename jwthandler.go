@@ -15,17 +15,14 @@ var (
 	ErrInvalidKeyID = errors.New("Invalid key Id in the JWT header")
 )
 
-func ParseJWT(tokenStr string, kl oidc.KeyLoader)(err error){
+func ParseJWT(tokenStr string, kl oidc.KeyLoader)(claims jwt.MapClaims, err error){
 	token, err := jwt.Parse(tokenStr, getSignKey(kl))
-todo
-	//type MapClaims map[string]interface{}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims["foo"], claims["nbf"])
-		return nil
+		return claims, nil
 	} else {
 		fmt.Println(err)
 	}
-	return err
+	return nil, err
 }
 
 func getSignKey(kl oidc.KeyLoader) jwt.Keyfunc {

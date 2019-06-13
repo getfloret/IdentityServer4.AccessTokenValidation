@@ -1,12 +1,13 @@
 package options
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"time"
 )
 
 type TokenClaimsProcessor interface {
-	Process(claims map[string]string) (map[string]string, error)
+	Process(claims jwt.MapClaims) (jwt.MapClaims, error)
 }
 
 type IdentityServerAuthenticationOptions struct {
