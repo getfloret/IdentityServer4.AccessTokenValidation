@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/oidc"
+	"github.com/getfloret/IdentityServer4.AccessTokenValidation/consts/jwtclaimtypes"
 	"github.com/karlseguin/ccache"
 	"time"
 )
@@ -32,7 +33,14 @@ func (h *referenceHandler) ParseReference(token string) (jwt.MapClaims, error){
 	if err==nil {
 		if tokenResult.Active {
 			if(h.cacheTTL>0){
-				h.cache.Set(token, tokenResult.Claims ,h.cacheTTL)
+				expiresIn := time.Unix(tokenResult.Claims[jwtclaimtypes.Expiration].(int64), 0).Sub(time.Now())
+				var ttl time.Duration
+				if expiresIn>h.cacheTTL{
+					ttl = h.cacheTTL
+				} else {
+					ttl = expiresIn
+				}
+				h.cache.Set(token, tokenResult.Claims , ttl)
 			}
 			return tokenResult.Claims, nil
 		} else {

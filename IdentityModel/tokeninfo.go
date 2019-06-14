@@ -11,7 +11,7 @@ import (
 )
 
 type TokenInfo struct {
-	Claims map[string]string
+	Claims []JWTClaim
 }
 
 var (
@@ -42,58 +42,15 @@ func NewTokenInfo(claims jwt.MapClaims) (*TokenInfo, error) {
 		}
 	}
 
-	claims.VerifyIssuer()
-
-	issuer, ok := ClaimAsString(t, jwtclaimtypes.Issuer)
-	if ok {
-		return
-	}
-	return defaultNewTokenInfo(t, timeBase)
+	//todo
+	//claims.VerifyIssuer()
+	return defaultNewTokenInfo(claims)
 }
 
-// ALPS Proccess or Default TokenInfo
-func defaultNewTokenInfo(t *jwt.Token, timeBase time.Time) (*processor.TokenInfo, error) {
-	scopes, ok := ClaimAsStrings(t, jwtclaimtypes.Scope)
-	if !ok {
-		return nil, ErrInvalidClaimScope
-	}
+func defaultNewTokenInfo(claims jwt.MapClaims) (*TokenInfo, error) {
 
-	sub, ok := ClaimAsString(t, jwtclaimtypes.Subject)
-	if !ok {
-		return nil, ErrInvalidClaimSub
-	}
 
-	realm, ok := ClaimAsString(t, JwtClaimRealm)
-	if !ok {
-		return nil, ErrInvalidClaimRealm
-	}
-
-	clientId := ""
-	if claims, ok := t.Claims.(jwt.MapClaims); ok {
-		_, has := claims[JwtClaimAzp]
-		if has {
-			clientId, ok = ClaimAsString(t, JwtClaimAzp)
-			if !ok {
-				return nil, ErrInvalidClaimAzp
-			}
-		}
-	}
-
-	exp, ok := ClaimAsInt64(t, jwtclaimtypes.Expiration)
-	if !ok {
-		return nil, ErrInvalidClaimExp
-	}
-
-	expiresIn := int(time.Unix(exp, 0).Sub(timeBase).Seconds())
-
-	return &processor.TokenInfo{
-		AccessToken: t.Raw,
-		UID:         sub,
-		GrantType:   "password",
-		Scope:       scopes,
-		Realm:       realm,
-		ClientId:    clientId,
-		TokenType:   "Bearer",
-		ExpiresIn:   expiresIn,
+	return &TokenInfo{
+		Claims:
 	}, nil
 }
