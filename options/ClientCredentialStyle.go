@@ -1,4 +1,4 @@
-package IdentityModel
+package options
 
 // Specifies how the client will transmit client ID and secret
 type ClientCredentialStyle int

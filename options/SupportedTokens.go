@@ -1,4 +1,4 @@
-package IdentityModel
+package options
 
 type SupportedTokens int
 const (

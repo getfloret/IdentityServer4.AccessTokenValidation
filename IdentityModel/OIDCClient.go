@@ -1,4 +1,4 @@
-package oidc
+package IdentityModel
 
 import (
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"

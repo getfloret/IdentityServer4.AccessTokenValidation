@@ -1,9 +1,9 @@
-package oidc
+package IdentityModel
 
 import (
-	"net/http"
-	log "github.com/sirupsen/logrus"
 	"github.com/afex/hystrix-go/hystrix"
+	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 // Get will fetch the HTTP resource from url using a GET method, wrapped in a circuit breaker named name

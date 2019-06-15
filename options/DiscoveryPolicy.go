@@ -1,4 +1,4 @@
-package IdentityModel
+package options
 
 type DiscoveryPolicy struct {
 	// Gets or sets the Authority on which the policy checks will be based on

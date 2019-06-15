@@ -2,12 +2,12 @@ package IdentityModel
 
 import (
 	"errors"
+	"github.com/getfloret/IdentityServer4.AccessTokenValidation/consts/jwtclaimtypes"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	log "github.com/sirupsen/logrus"
-	"time"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/consts/jwtclaimtypes"
 )
 
 type TokenInfo struct {
@@ -27,18 +27,14 @@ var (
 	ErrInvalidClaimExp = errors.New("Invalid claim: exp")
 )
 
-// do user custom token transform & valid issuer .etc.
-//https://github.com/IdentityModel/IdentityModel/blob/d95fd0713b4d2d93ee3a81c78ac970a76421294b/src/Client/Messages/TokenIntrospectionResponse.cs
-//https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection/blob/master/src/OAuth2IntrospectionHandler.cs
-
 func NewTokenInfo(claims jwt.MapClaims) (*TokenInfo, error) {
-	if options.GlobalAuthenticationOptions.ClaimsProcessor!=nil {
+	if options.GlobalAuthenticationOptions.ClaimsProcessor != nil {
 		transformClaims, transformErr := options.GlobalAuthenticationOptions.ClaimsProcessor.Process(claims)
-		if(transformErr == nil){
+		if transformErr == nil {
 			claims = transformClaims
 		} else {
 			log.Error("Err when try to do custom transform token claims")
-			return nil,transformErr
+			return nil, transformErr
 		}
 	}
 
@@ -48,9 +44,32 @@ func NewTokenInfo(claims jwt.MapClaims) (*TokenInfo, error) {
 }
 
 func defaultNewTokenInfo(claims jwt.MapClaims) (*TokenInfo, error) {
-
+	jwtClaims := []JWTClaim{}
+	for k, v := range claims {
+		// due to a bug in identityserver - we need to be able to deal with the scope list both in array as well as space-separated list format
+		if k == jwtclaimtypes.Scope {
+			switch v.(type) {
+			// it's an array
+			case []interface{}:
+				{
+					for _, scopeV := range v.([]interface{}) {
+						jwtClaims = append(jwtClaims, JWTClaim{ClaimType: jwtclaimtypes.Scope, ClaimValue: scopeV})
+					}
+				}
+			// it's a string
+			case string:
+				{
+					for item := range strings.Split(v.(string), " ") {
+						jwtClaims = append(jwtClaims, JWTClaim{ClaimType: jwtclaimtypes.Scope, ClaimValue: item})
+					}
+				}
+			}
+		} else {
+			jwtClaims = append(jwtClaims, JWTClaim{ClaimType: k, ClaimValue: v})
+		}
+	}
 
 	return &TokenInfo{
-		Claims:
+		Claims: jwtClaims,
 	}, nil
 }

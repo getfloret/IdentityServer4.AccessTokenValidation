@@ -3,7 +3,7 @@ package IdentityServer4_AccessTokenValidation
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/oidc"
+	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/consts/jwtclaimtypes"
 	"github.com/karlseguin/ccache"
 	"time"
@@ -29,11 +29,11 @@ func (h *referenceHandler) ParseReference(token string) (jwt.MapClaims, error){
 		}
 	}
 
-	tokenResult, err := oidc.Post(oidc.DefaultKeyLoader.OIDCConf().IntrospectionEndpoint,&oidc.TokenIntrospectionRequest{Token:token})
+	tokenResult, err := IdentityModel.Post(IdentityModel.DefaultKeyLoader.OIDCConf().IntrospectionEndpoint,&IdentityModel.TokenIntrospectionRequest{Token: token})
 	if err==nil {
 		if tokenResult.Active {
 			if(h.cacheTTL>0){
-				expiresIn := time.Unix(tokenResult.Claims[jwtclaimtypes.Expiration].(int64), 0).Sub(time.Now())
+				expiresIn := time.Unix(int64(tokenResult.Claims[jwtclaimtypes.Expiration].(float64)), 0).Sub(time.Now())
 				var ttl time.Duration
 				if expiresIn>h.cacheTTL{
 					ttl = h.cacheTTL

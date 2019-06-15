@@ -1,7 +1,10 @@
-package oidc
+package IdentityModel
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	"io"
 	"net"
@@ -49,8 +52,9 @@ func Post(url string, data *TokenIntrospectionRequest) (tokenResult *Introspecti
 		bodyData+="&token_type_hint="+data.TokenTypeHint
 	}
 
-	req, err := http.NewRequest("POST",DefaultKeyLoader.OIDCConf().IntrospectionEndpoint,strings.NewReader(bodyData))
+	req, err := http.NewRequest("POST", DefaultKeyLoader.OIDCConf().IntrospectionEndpoint,strings.NewReader(bodyData))
 	req.Header.Set("Content-Type","application/x-www-form-urlencoded")
+	req.Header.Set("Authorization",authorizationHeader(options.GlobalAuthenticationOptions.ApiName,options.GlobalAuthenticationOptions.ApiSecret))
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +66,9 @@ func Post(url string, data *TokenIntrospectionRequest) (tokenResult *Introspecti
 		panic(error)
 	}
 	defer resp.Body.Close()
-
+	if(resp.StatusCode != http.StatusOK){
+		return nil, errors.New("Introspection Endpoint call Error")
+	}
 	tokenResult, _ = extractIntrospectResult(resp.Body)
 	return
 }
@@ -79,9 +85,7 @@ func extractIntrospectResult(r io.Reader) (*IntrospectionResult, error) {
 	}
 
 	if val, ok := res.Claims["active"]; ok {
-		if err := json.Unmarshal(val.([]byte), &res.Active); err != nil {
-			return nil, err
-		}
+		res.Active = val.(bool)
 		delete(res.Claims, "active")
 	}
 
@@ -92,7 +96,10 @@ func extractIntrospectResult(r io.Reader) (*IntrospectionResult, error) {
 type IntrospectionResult struct {
 	Active bool
 
-	Claims map[string]interface{}
+	Claims jwt.MapClaims
 }
 
-
+func authorizationHeader(user, password string) string {
+	base := user + ":" + password
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(base))
+}

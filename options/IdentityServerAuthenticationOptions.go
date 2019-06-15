@@ -2,7 +2,6 @@ package options
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"time"
 )
 
@@ -21,7 +20,7 @@ type IdentityServerAuthenticationOptions struct {
 	DiscoveryHttpClientTLSTimeout time.Duration
 
 	/// Specifies which token types are supported (JWT, reference or both)
-	SupportedTokens IdentityModel.SupportedTokens
+	SupportedTokens SupportedTokens
 
 	///// <summary>
 	///// Callback to retrieve token from incoming request
@@ -59,7 +58,7 @@ type IdentityServerAuthenticationOptions struct {
 	CacheKeyPrefix string
 
 	// Gets or sets the policay for the introspection discovery document.
-	IntrospectionDiscoveryPolicy IdentityModel.DiscoveryPolicy
+	IntrospectionDiscoveryPolicy DiscoveryPolicy
 
 	// specifies whether the token should be saved in the authentication properties
 	SaveToken bool
@@ -100,12 +99,12 @@ type IdentityServerAuthenticationOptions struct {
 
 // Gets a value indicating whether JWTs are supported.
 func (options *IdentityServerAuthenticationOptions) SupportsJwt()bool{
-	return options.SupportedTokens == IdentityModel.SupportedTokens_Jwt || options.SupportedTokens == IdentityModel.SupportedTokens_Both
+	return options.SupportedTokens == SupportedTokens_Jwt || options.SupportedTokens == SupportedTokens_Both
 }
 
 // Gets a value indicating whether reference tokens are supported.
 func (options *IdentityServerAuthenticationOptions) SupportsIntrospection()bool{
-	return options.SupportedTokens == IdentityModel.SupportedTokens_Reference || options.SupportedTokens == IdentityModel.SupportedTokens_Both
+	return options.SupportedTokens == SupportedTokens_Reference || options.SupportedTokens == SupportedTokens_Both
 }
 
 const (
@@ -121,17 +120,17 @@ var (
 )
 func defaultOptions() *IdentityServerAuthenticationOptions {
 	return &IdentityServerAuthenticationOptions{
-		DiscoveryHttpClientTimeout: defaultDiscoveryHttpClientTimeout,
-		DiscoveryHttpClientTLSTimeout: defaultDiscoveryHttpClientTLSTimeout,
-		CacheDuration:                     defaultCacheDuration,
+		DiscoveryHttpClientTimeout:       defaultDiscoveryHttpClientTimeout,
+		DiscoveryHttpClientTLSTimeout:    defaultDiscoveryHttpClientTLSTimeout,
+		CacheDuration:                    defaultCacheDuration,
 		BackChannelTimeouts:              defaultBackChannelTimeouts,
-		DiscoveryDocumentRefreshInterval:     defaultDiscoveryDocumentRefreshInterval,
-		RequireHttpsMetadata: true,
-		SupportedTokens: IdentityModel.SupportedTokens_Both,
-		NameClaimType: "name",
-		RoleClaimType: "role",
-		EnableCaching: false,
-		CacheKeyPrefix: "",
-		SaveToken: true,
+		DiscoveryDocumentRefreshInterval: defaultDiscoveryDocumentRefreshInterval,
+		RequireHttpsMetadata:             true,
+		SupportedTokens:                  SupportedTokens_Both,
+		NameClaimType:                    "name",
+		RoleClaimType:                    "role",
+		EnableCaching:                    false,
+		CacheKeyPrefix:                   "",
+		SaveToken:                        true,
 	}
 }

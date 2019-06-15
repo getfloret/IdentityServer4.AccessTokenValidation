@@ -1,7 +1,7 @@
 package IdentityServer4_AccessTokenValidation
 
 import (
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/oidc"
+	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -12,6 +12,7 @@ const(
 	AuthenticationScheme = "Bearer"
 	AccessTokenParameter = "access_token"
 	TokenItemsKey = "idsrv4:tokenvalidation:token"
+	IdentityKey = "idsrv4:tokenvalidation:identity"
 	EffectiveSchemeKey = "idsrv4:tokenvalidation:effective:"
 	JWTScheme = "JWT"
 	IntrospectionScheme = "Reference"
@@ -40,5 +41,5 @@ func setupHandler(){
 	if(err != nil){
 		log.Panic("Configuration Authority is not valid")
 	}
-	oidc.DefaultKeyLoader = oidc.NewCachingOpenIDProviderLoader(oidc_discoverydoc_url)
+	IdentityModel.DefaultKeyLoader = IdentityModel.NewCachingOpenIDProviderLoader(oidc_discoverydoc_url)
 }

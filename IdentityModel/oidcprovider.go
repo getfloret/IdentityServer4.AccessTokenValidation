@@ -1,11 +1,10 @@
-package oidc
+package IdentityModel
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/afex/hystrix-go/hystrix"
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/jwk"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/infrastructure"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/infrastructure/caching"
@@ -23,7 +22,7 @@ import (
 type cachingOpenIDProviderLoader struct {
 	url      string
 	keyCache *caching.Cache
-	oidcConf *IdentityModel.OpenIdConnectConfiguration
+	oidcConf *options.OpenIdConnectConfiguration
 }
 
 var (
@@ -62,7 +61,7 @@ func (kl *cachingOpenIDProviderLoader) Keys() map[string]interface{} {
 	return kl.keyCache.Snapshot()
 }
 
-func (kl *cachingOpenIDProviderLoader) OIDCConf() *IdentityModel.OpenIdConnectConfiguration {
+func (kl *cachingOpenIDProviderLoader) OIDCConf() *options.OpenIdConnectConfiguration {
 	return kl.oidcConf
 }
 
@@ -134,7 +133,7 @@ func (kl *cachingOpenIDProviderLoader) refreshKeys() {
 }
 
 // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse
-func (kl *cachingOpenIDProviderLoader) loadConfiguration() (*IdentityModel.OpenIdConnectConfiguration, error) {
+func (kl *cachingOpenIDProviderLoader) loadConfiguration() (*options.OpenIdConnectConfiguration, error) {
 	resp, err := Get("loadConfiguration", kl.url)
 	if err != nil {
 		return nil, err
@@ -151,7 +150,7 @@ func (kl *cachingOpenIDProviderLoader) loadConfiguration() (*IdentityModel.OpenI
 		return nil, err
 	}
 
-	config := new(IdentityModel.OpenIdConnectConfiguration)
+	config := new(options.OpenIdConnectConfiguration)
 	err = json.Unmarshal(body, config)
 	return config, err
 }

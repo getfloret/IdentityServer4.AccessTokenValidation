@@ -12,6 +12,8 @@ func main() {
 	r.Use(IS4.IdentityServerAuthentication(func(options *options.IdentityServerAuthenticationOptions)(){
 		options.Authority = "https://u.highyouth.com"
 		options.DiscoveryDocumentRefreshInterval = 24 * time.Hour
+		options.ApiName = "floret"
+		options.ApiSecret = "getfloret.com"
 	}))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{

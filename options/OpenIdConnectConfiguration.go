@@ -1,4 +1,4 @@
-package IdentityModel
+package options
 
 import "github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/jwk"
 // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata

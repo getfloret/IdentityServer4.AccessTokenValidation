@@ -1,7 +1,6 @@
 package options
 
 import (
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"time"
 )
 
@@ -27,7 +26,7 @@ ClientSecret string
 //public ClientAssertion ClientAssertion { get; set; } = new ClientAssertion();
 
 // Specifies how client id and secret are being sent
-ClientCredentialStyle IdentityModel.ClientCredentialStyle
+ClientCredentialStyle ClientCredentialStyle
 
 //todo
 ///// <summary>
@@ -49,7 +48,7 @@ RoleClaimType string
 // AuthenticationType string
 
 // Specifies the policy for the discovery client
-DiscoveryPolicy IdentityModel.DiscoveryPolicy
+DiscoveryPolicy DiscoveryPolicy
 
 // Specifies whether tokens that contain dots (most likely a JWT) are skipped
 SkipTokensWithDots bool

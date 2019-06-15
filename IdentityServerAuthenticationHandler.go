@@ -1,12 +1,14 @@
 package IdentityServer4_AccessTokenValidation
 
 import (
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel/oidc"
+	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 	"github.com/getfloret/IdentityServer4.AccessTokenValidation/options"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"strings"
 )
+
+var referenceTokenHandler = New(1000,options.GlobalAuthenticationOptions.CacheDuration)
 
 func HandleAuthenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -28,21 +30,37 @@ func HandleAuthenticate() gin.HandlerFunc {
 			if(isJWTToken(token) && options.GlobalAuthenticationOptions.SupportsJwt()) {
 				log.Trace("Token is a JWT and is supported.")
 				c.Set(EffectiveSchemeKey,JWTScheme)
-				//todo
-				errParse:= ParseJWT(token,oidc.DefaultKeyLoader)
+				mapClaims, errParse:= ParseJWT(token, IdentityModel.DefaultKeyLoader)
 				if(errParse == nil){
+					claims,tokenInfoError := IdentityModel.NewTokenInfo(mapClaims)
+					if(tokenInfoError !=nil){
+						panic(tokenInfoError)
+					}
+					log.Info(claims)
+					c.Set(IdentityKey,claims)
 					c.Next()
 				} else {
 					log.Error(errParse)
 					ErrInvalidToken.Write(c.Writer)
+					c.Abort()
 				}
 			} else if options.GlobalAuthenticationOptions.SupportsIntrospection(){
 				log.Trace("Token is a reference token and is supported.")
 				c.Set(EffectiveSchemeKey,IntrospectionScheme)
-
-				//todo
-				//		return await Context.AuthenticateAsync(introspectionScheme);
-				c.Next()
+				mapClaims, errParse:= referenceTokenHandler.ParseReference(token)
+				if(errParse == nil){
+					claims,tokenInfoError := IdentityModel.NewTokenInfo(mapClaims)
+					if(tokenInfoError !=nil){
+						panic(tokenInfoError)
+					}
+					log.Info(claims)
+					c.Set(IdentityKey,claims)
+					c.Next()
+				} else {
+					log.Error(errParse)
+					ErrInvalidToken.Write(c.Writer)
+					c.Abort()
+				}
 			} else {
 				log.Warn("Neither JWT nor reference tokens seem to be correctly configured for incoming token.")
 				ErrInvalidToken.Write(c.Writer)

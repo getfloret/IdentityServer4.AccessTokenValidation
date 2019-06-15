@@ -2,7 +2,6 @@ package options
 
 import (
 	"time"
-	"github.com/getfloret/IdentityServer4.AccessTokenValidation/IdentityModel"
 )
 // Options class provides information needed to control Bearer Authentication handler behavior
 type JwtBearerOptions struct {
@@ -54,7 +53,7 @@ type JwtBearerOptions struct {
 
 	/// Configuration provided directly by the developer. If provided, then MetadataAddress and the Backchannel properties
 	/// will not be used. This information should not be updated during request processing.
-	Configuration IdentityModel.OpenIdConnectConfiguration
+	Configuration OpenIdConnectConfiguration
 
 	//https://github.com/aspnet/Security/blob/beaa2b443d46ef8adaf5c2a89eb475e1893037c2/src/Microsoft.AspNetCore.Authentication.OpenIdConnect/OpenIdConnectOptions.cs
 	/// <summary>
